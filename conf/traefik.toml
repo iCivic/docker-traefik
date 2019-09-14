@@ -174,6 +174,13 @@ defaultEntryPoints = ["http"]
 		# Default: a sha1 (6 chars)
 		#
 		cookieName = "fk_cookie"
+		
+		[backends.fk-app.healthcheck]
+		path = "/web/login"
+		interval = "10s"
+		port = 8069
+		scheme = "http"
+	
 	
 		[backends.fk-app.servers]
 		  [backends.fk-app.servers.server0]
