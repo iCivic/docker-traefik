@@ -33,6 +33,12 @@ defaultEntryPoints = ["http"]
   [entryPoints.https]
     address = ":443"
 
+  [entryPoints.api]
+    address = ":8080"
+
+  [entryPoints.ping]
+    address = ":8081"
+	
 ################################################################
 # Traefik logs configuration
 ################################################################
@@ -125,6 +131,7 @@ defaultEntryPoints = ["http"]
   # Default: "traefik"
   #
   # entryPoint = "traefik"
+  entryPoint = "api"
 
   # Enabled Dashboard
   #
@@ -132,7 +139,9 @@ defaultEntryPoints = ["http"]
   # Default: true
   #
   # dashboard = false
-
+  dashboard = true
+  debug = true
+  
 ################################################################
 # Ping configuration
 ################################################################
@@ -146,12 +155,46 @@ defaultEntryPoints = ["http"]
   # Default: "traefik"
   #
   # entryPoint = "traefik"
-
+  entryPoint = "ping"
 
 ################################################################
 # Docker Provider
 ################################################################
 
+[file]
+
+	[backends]
+	  [backends.fk-app]
+		# Enable sticky session
+		[backends.fk-app.loadbalancer.stickiness]
+
+		# Customize the cookie name
+		#
+		# Optional
+		# Default: a sha1 (6 chars)
+		#
+		cookieName = "fk_cookie"
+	
+		[backends.fk-app.servers]
+		  [backends.fk-app.servers.server0]
+			url = "http://192.168.200.4:8069"
+			weight = 1
+		  [backends.fk-app.servers.server1]
+			url = "http://192.168.200.5:8069"
+			weight = 1
+		  [backends.fk-app.servers.server2]
+			url = "http://192.168.200.6:8069"
+			weight = 1
+
+	[frontends]
+	  [frontends.fk-app]
+		entryPoints = ["http", "https"]
+		backend = "fk-app"
+		passHostHeader = true
+	  [frontends.fk-app.routes]
+      [frontends.fk-app.routes.route0]
+        rule = "Host:fk.lab.com"
+	
 # Enable Docker Provider.
 [docker]
 # Docker server endpoint. Can be a tcp or a unix socket endpoint.

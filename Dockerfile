@@ -48,4 +48,6 @@ ENTRYPOINT ["./bin/traefik"]
 ## ****************************** 参考资料 *****************************************
 ## 制作Docker Image: docker build -t idu/traefik:1.7.15 .
 ## 
+## NGINX、HAProxy和Traefik负载均衡能力对比
+## https://zhuanlan.zhihu.com/p/41354937
 
