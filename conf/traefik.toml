@@ -9,6 +9,11 @@
 ################################################################
 # Global configuration
 ################################################################
+debug = true
+
+logLevel = "DEBUG"
+defaultEntryPoints = ["http"]
+
 [global]
   checkNewVersion = true
   sendAnonymousUsage = true
@@ -22,10 +27,10 @@
 # Optional
 # Default:
 [entryPoints]
-  [entryPoints.web]
+  [entryPoints.http]
     address = ":80"
 
-  [entryPoints.websecure]
+  [entryPoints.https]
     address = ":443"
 
 ################################################################
@@ -44,7 +49,7 @@
   # Optional
   # Default: "ERROR"
   #
-  # level = "DEBUG"
+  level = "INFO"
 
   # Sets the filepath for the traefik log. If not specified, stdout will be used.
   # Intermediate directories are created if necessary.
@@ -88,13 +93,32 @@
   #
   # format = "json"
 
+# Enable retry sending request if network error
+[retry]
+
+# Number of attempts
+#
+# Optional
+# Default: (number servers in backend) -1
+#
+# attempts = 3
+
+# Enable custom health check options.
+[healthcheck]
+
+# Set the default health check interval.
+#
+# Optional
+# Default: "30s"
+#
+# interval = "30s"
+
 ################################################################
 # API and dashboard configuration
 ################################################################
 
 # Enable API and dashboard
 [api]
-
   # Name of the related entry point
   #
   # Optional
@@ -123,30 +147,84 @@
   #
   # entryPoint = "traefik"
 
+
 ################################################################
-# Docker configuration backend
+# Docker Provider
 ################################################################
 
-# Enable Docker configuration backend
-[providers.docker]
+# Enable Docker Provider.
+[docker]
+# Docker server endpoint. Can be a tcp or a unix socket endpoint.
+#
+# Required
+#
+endpoint = "unix:///var/run/docker.sock"
 
-  # Docker server endpoint. Can be a tcp or a unix socket endpoint.
-  #
-  # Required
-  # Default: "unix:///var/run/docker.sock"
-  #
-  # endpoint = "tcp://10.10.10.10:2375"
+# Default base domain used for the frontend rules.
+# Can be overridden by setting the "traefik.domain" label on a container.
+#
+# Optional
+#
+domain = "lab.com"
+sans = ["web1.abc.com", "web2.abc.com"]
 
-  # Default host rule.
-  #
-  # Optional
-  # Default: "Host(`{{ normalize .Name }}`)"
-  #
-  # defaultRule = "Host(`{{ normalize .Name }}.docker.localhost`)"
+# Enable watch docker changes.
+#
+# Optional
+#
+watch = true
 
-  # Expose containers by default in traefik
-  #
-  # Optional
-  # Default: true
-  #
-  # exposedByDefault = false
+# Override default configuration template.
+# For advanced users :)
+#
+# Optional
+#
+# filename = "docker.tmpl"
+
+# Override template version
+# For advanced users :)
+#
+# Optional
+# - "1": previous template version (must be used only with older custom templates, see "filename")
+# - "2": current template version (must be used to force template version when "filename" is used)
+#
+# templateVersion = 2
+
+# Expose containers by default in Traefik.
+# If set to false, containers that don't have `traefik.enable=true` will be ignored.
+#
+# Optional
+# Default: true
+#
+exposedByDefault = true
+
+# Use the IP address from the binded port instead of the inner network one.
+#
+# In case no IP address is attached to the binded port (or in case 
+# there is no bind), the inner network one will be used as a fallback.     
+#
+# Optional
+# Default: false
+#
+usebindportip = true
+
+# Use Swarm Mode services as data provider.
+#
+# Optional
+# Default: false
+#
+swarmMode = false
+
+# Polling interval (in seconds) for Swarm Mode.
+#
+# Optional
+# Default: 15
+#
+swarmModeRefreshSeconds = 15
+
+# Define a default docker network to use for connections to all containers.
+# Can be overridden by the traefik.docker.network label.
+#
+# Optional
+#
+network = "traefik-net"
